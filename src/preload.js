@@ -7,6 +7,6 @@ contextBridge.exposeInMainWorld('electron', {
   receiveBranches: (callback) => ipcRenderer.on('git-branches', (event, branches) => callback(branches)),
   receiveFetchResult: (callback) => ipcRenderer.on('git-fetch', (event, fetchResult) => callback(fetchResult)),
   checkoutAndPull: (branch) => ipcRenderer.invoke('git-checkout-and-pull', branch),
-  buildAndFlash: () => ipcRenderer.invoke('build-and-flash'),
+  buildAndFlash: (product) => ipcRenderer.invoke('build-and-flash', product),
   receiveBuildResult: (callback) => ipcRenderer.on('build-result', (event, result) => callback(result)),
 });

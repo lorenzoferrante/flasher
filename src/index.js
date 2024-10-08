@@ -15,7 +15,7 @@ const createWindow = () => {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 600,
-    height: 780,
+    height: 850,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -95,10 +95,10 @@ ipcMain.handle('git-checkout-and-pull', async (event, branch) => {
   }
 });
 
-ipcMain.handle('build-and-flash', async () => {
+ipcMain.handle('build-and-flash', async (event, product) => {
   if (mainWindow) {
     try {
-      const result = await buildProject(directorySelected);
+      const result = await buildProject(directorySelected, product);
       console.log('Build and flash result:', result);
       mainWindow.webContents.send('build-result', result);
     } catch (error) {
@@ -152,9 +152,10 @@ const checkoutAndPull = (branch) => {
 };
 
 
-const buildProject = (directoryPath) => {
+const buildProject = (directoryPath, product) => {
   // create a function that runs the command get_idf, and launch the command idf.py build inside the project directory
   return new Promise((resolve, reject) => {
+    let productArgs = `-DPRODOTTO:STRING=__${product}__`;
     let get_idf;
     let idf_path;
     if (isMac) {
@@ -163,7 +164,7 @@ const buildProject = (directoryPath) => {
     if (isWindows) {
       get_idf = "C:/esp32/idf_cmd_init.bat";
       idf_path = "C:/esp32/frameworks/esp-idf-v5.2.1/tools/idf.py";
-      exec(`cd ${directoryPath} && "C:\\esp32\\idf_cmd_init.bat" esp-idf-203e0b45697f0ca2b63cb991f3278863 && idf.py build && idf.py flash`, (error, stdout, stderr) => {
+      exec(`cd ${directoryPath} && "C:\\esp32\\idf_cmd_init.bat" esp-idf-203e0b45697f0ca2b63cb991f3278863 && idf.py build ${productArgs} && idf.py flash`, (error, stdout, stderr) => {
         if (error) {
           reject(error);
           return;
@@ -171,7 +172,7 @@ const buildProject = (directoryPath) => {
         resolve(stdout);
       });
     } else {
-      exec(`cd ${directoryPath} && ${get_idf} && idf.py build`, (error, stdout, stderr) => {
+      exec(`cd ${directoryPath} && ${get_idf} && idf.py build ${productArgs}`, (error, stdout, stderr) => {
         if (error) {
           reject(error);
           return;
