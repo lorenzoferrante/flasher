@@ -33,9 +33,15 @@
           <textarea id="git-fetch-result" class="form-control" rows="10" readonly style="resize: none;"></textarea>
         </div>
 
-        <div class="text-center">
+        <div class="text-center d-flex align-items-center justify-content-center">
           <button id="build-and-flash" class="btn btn-success">Build & Flash</button>
+          <div id="spinner" class="d-none ms-3">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -60,7 +66,15 @@
     });
 
     document.getElementById('build-and-flash').addEventListener('click', async () => {
-      window.electron.buildAndFlash();
+      // Disable button
+      document.getElementById('build-and-flash').disabled = true;
+      // Show spinner
+      document.getElementById('spinner').classList.remove('d-none');
+      await window.electron.buildAndFlash();
+      // Hide spinner
+      document.getElementById('spinner').classList.add('d-none');
+      // Re-enable button
+      document.getElementById('build-and-flash').disabled = false;
     });
 
     // Listen for git branches from the main process and update the select element

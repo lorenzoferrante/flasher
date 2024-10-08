@@ -163,7 +163,7 @@ const buildProject = (directoryPath) => {
     if (isWindows) {
       get_idf = "C:/esp32/idf_cmd_init.bat";
       idf_path = "C:/esp32/frameworks/esp-idf-v5.2.1/tools/idf.py";
-      exec(`cd ${directoryPath} && "C:\\esp32\\idf_cmd_init.bat" esp-idf-203e0b45697f0ca2b63cb991f3278863 && idf.py build`, (error, stdout, stderr) => {
+      exec(`cd ${directoryPath} && "C:\\esp32\\idf_cmd_init.bat" esp-idf-203e0b45697f0ca2b63cb991f3278863 && idf.py build && idf.py flash`, (error, stdout, stderr) => {
         if (error) {
           reject(error);
           return;
@@ -171,7 +171,7 @@ const buildProject = (directoryPath) => {
         resolve(stdout);
       });
     } else {
-      exec(`cd ${directoryPath} && ${get_idf} && ${idf_path} build`, (error, stdout, stderr) => {
+      exec(`cd ${directoryPath} && ${get_idf} && idf.py build`, (error, stdout, stderr) => {
         if (error) {
           reject(error);
           return;
