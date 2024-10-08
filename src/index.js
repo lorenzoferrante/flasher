@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('node:path');
 const { exec } = require('child_process');
 const os = require('os');
+const { error } = require('node:console');
 
 const isMac = os.platform() === "darwin";
 const isWindows = os.platform() === "win32";
@@ -155,19 +156,29 @@ const buildProject = (directoryPath) => {
   // create a function that runs the command get_idf, and launch the command idf.py build inside the project directory
   return new Promise((resolve, reject) => {
     let get_idf;
+    let idf_path;
     if (isMac) {
       get_idf = '. $HOME/esp/esp-idf/export.sh';
     } 
     if (isWindows) {
-      get_idf = '%userprofile%\esp\esp-idf\export.bat';
+      get_idf = "C:/esp32/idf_cmd_init.bat";
+      idf_path = "C:/esp32/frameworks/esp-idf-v5.2.1/tools/idf.py";
+      exec(`cd ${directoryPath} && "C:\\esp32\\idf_cmd_init.bat" esp-idf-203e0b45697f0ca2b63cb991f3278863 && idf.py build`, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(stdout);
+      });
+    } else {
+      exec(`cd ${directoryPath} && ${get_idf} && ${idf_path} build`, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve(stdout);
+      });
     }
-    exec(`cd ${directoryPath} && ${get_idf} && idf.py build`, (error, stdout, stderr) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve(stdout);
-    });
   });
 };
 
